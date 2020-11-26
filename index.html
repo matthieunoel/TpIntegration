@@ -1,22 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Test Case</title>
+    <title>index</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+    <link rel="stylesheet" href="./stylesheets/style.css">
+    <script src="./scripts/main.js"></script>
 </head>
+
 <body>
-    <section class="container">
+    <!-- <section class="container">
         <h1>Useful phases in German</h1>
         <p class="disclaimer">From <a href="https://www.dummies.com/languages/german/common-conversational-words-and-phrases-in-german/" target="_blank" rel="noopener noreferrer">dummies.com</a></p>
         <button class="container__disable" id="disable">Hide translations</button>
         <div class="lang-grid" id="language">
             <p class="lang-grid__nodata hide">No data exists.</p>
         </div>
+    </section> -->
+
+    <header>
+        <h1>Atelier Tests (KENORE Ahmed) : Matthieu NOEL, Cyril FURNON, Thomas Christophe.</h1>
+    </header>
+
+    <section>
+        <h2>Génération de la base de données SQLite et de sa table client</h2>
+        <form id="form1">
+            <button onclick="alert('Generate db')">
+                Générer
+            </button>
+        </form>
     </section>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
-    <link rel="stylesheet" href="./stylesheets/style.css">
-    <script src="./scripts/main.js"></script>
+    <section>
+        <h2>Importer un fichier client dans la base de données SQLite</h2>
+        <form id="form2">
+            <label for="Path">Chemin du fichier : </label>
+            <input type="text" name="Path" id="form2Path" value="./client.txt">
+            <button onclick="alert(document.getElementById('form2Path').value)">
+                Importer le fichier
+            </button>
+        </form>
+    </section>
 </body>
+
 </html>
