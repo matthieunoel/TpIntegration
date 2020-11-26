@@ -7,7 +7,7 @@
         "build": "ng build",
         "lint": "ng lint",
         "e2e": "ng e2e",
-        "test": "ng test && jest --watchAll",
+        "test": "jest --watchAll",
         "coverage": "jest --coverage"
     },
     "private": true,
