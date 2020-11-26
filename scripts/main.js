@@ -46,3 +46,45 @@
 //         triggerItem
 //     };
 // }
+
+function createDBFileIfNotExists() {
+
+}
+
+function insertTableIfNotExists() {
+
+}
+
+async function extractTextFromFile() {
+
+    return new Promise((resolve, reject) => {
+
+        try {
+            fileInput = document.getElementById('form2File').files[0]
+
+            // console.log('File selected : ', fileInput)
+
+            fr = new FileReader()
+            fr.onload = () => {
+                resolve(fr.result)
+            }
+            fr.readAsText(fileInput);
+        } catch (error) {
+            reject(error)
+        }
+
+    })
+
+}
+
+function generateInsertSQL() {
+
+}
+
+function checkInsertInDB() {
+
+}
+
+async function StartInsertDataProcess() {
+    console.log(await extractTextFromFile());
+}

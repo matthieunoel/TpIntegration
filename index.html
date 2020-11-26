@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
     <link rel="stylesheet" href="./stylesheets/style.css">
     <script src="./scripts/main.js"></script>
+    <script src="./node_modules/sql.js/dist/"></script>
 </head>
 
 <body>
@@ -36,11 +37,11 @@
     <section>
         <h2>Importer un fichier client dans la base de données SQLite</h2>
         <form id="form2">
-            <label for="Path">Chemin du fichier : </label>
-            <input type="text" name="Path" id="form2Path" value="./client.txt">
-            <button onclick="alert(document.getElementById('form2Path').value)">
-                Importer le fichier
-            </button>
+            <!-- <label for="Path">Chemin du fichier : </label>
+            <input type="text" name="Path" id="form2Path" value="./client.txt"> -->
+            <input type="file" id="form2File" name="File">
+            <input type="button" id="form2button1" value="Importer le fichier" onclick="StartInsertDataProcess()">
+            <!-- <input type="button" id="form2button1" value="Importer le fichier" onclick="alert('Hey')"> -->
         </form>
     </section>
 </body>
