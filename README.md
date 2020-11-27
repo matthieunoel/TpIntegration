@@ -1,27 +1,23 @@
-# Project
+# Installation
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.7.
+```
+npm i -g yarn
+npm i -g nodemon
+sudo yarn install
+```
 
-## Development server
+Then, edit "./src/app.ts", put you're ip address and set the config you want.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Finally,
 
-## Code scaffolding
+```
+npm run start-wnd / npm run start-linux
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+If you have some issues installing the server on windows, follow instructions of this :
+https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/troubleshooting.md
 
-## Build
+# Request list :
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+- GET : "/" : Give you info about the server
+- GET: "/getLogs" (Params(not required): all(boolean), guestId(number), uuid(string), dateStart(string), dateEnd(string)) : Permit to check logs, these parameters are options. "all" permit to see all logs, not only this month. guestId, uuid, dateStart, dateEnd are filters. dateStart and dateEnd have to be this way : "YYYY-MM-DDThh:mm:ss", for example, "2020-03-24T11:15:00"
