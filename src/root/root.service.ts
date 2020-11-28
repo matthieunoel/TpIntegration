@@ -194,8 +194,11 @@ export class RootService {
                         if (!fs.existsSync(AppConfig.dbPath)) {
                             throw new Error('Aucune base de donnée trouvée.')
                         }
-                        this.InsertSQLRequest(AppConfig.dbPath, await this.GenerateDbInserts(await this.ExtratContentFromFile(path)))
-                        this.CheckClientDataInTableClient(AppConfig.dbPath, '')
+                        const data = await this.ExtratContentFromFile(path)
+                        this.InsertSQLRequest(AppConfig.dbPath, await this.GenerateDbInserts(data))
+                        if (!this.CheckClientDataInTableClient(AppConfig.dbPath, data)) {
+                            throw new Error('Les données du fichier et les données en base ne correspondent pas.')
+                        }
                         res = `Import du fichier "${path} effectué avec succès."`
                     } catch (error) {
                         res = 'Erreur lors de l\'insertion des données : ' + error;
@@ -364,8 +367,20 @@ export class RootService {
     }
 
     public async CheckClientDataInTableClient(dbPath: string, data: string) {
-        let clients = new Database(dbPath).prepare('SELECT * FROM client;').all()
-        console.log(clients)
+        let clientsDb = new Database(dbPath).prepare('SELECT * FROM client;').all()
+        // console.log(clients)
+        const formatedData = data.split('\r\n')
+        let clientsData = []
+        // tslint:disable-next-line: prefer-for-of
+        for (let index = 0; index < formatedData.length; index++) {
+            const data = formatedData[index].split(';');
+            clientsData.push({
+                id: data[0],
+                nom: data[1],
+                prenom: data[2],
+                adresse: data[3]
+            })
+        }
+        return clientsData === clientsDb
     }
-
 }
