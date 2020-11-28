@@ -6,16 +6,19 @@ const ejs = require('ejs')
 const uuidv1 = require('uuid/v1')
 const fs = require('fs')
 const fsPromise = require('fs').promises
+const nodePath = require('path')
 const Database = require('better-sqlite3')
 
 import { performance } from 'perf_hooks'
 // import { IPrint, ICard } from './root.controller'
-import { Config } from '../app'
+import { AppConfig } from '../app'
 import { Logger } from './root.logSystem'
+import { config } from 'process'
 
 export class RootService {
 
     private logger: Logger = new Logger()
+    // private titre: string = 'Atelier Tests (KENORE Ahmed) : Matthieu NOEL, Cyril FURNON, Thomas Christophe.'
 
     async getLogs(guestId: number, paramUuid: string, all: boolean, dateStart: string, dateEnd: string) {
 
@@ -140,18 +143,90 @@ export class RootService {
 
     }
 
+    async main(): Promise<string> {
+
+        try {
+            const perfStart = performance.now()
+            const uuid: string = uuidv1()
+
+            const params = {
+                titre: AppConfig.titre
+            }
+
+            return new Promise<string>(async (resolve, reject) => {
+
+                await ejs.renderFile('./src/root/main.html', params, { async: true }, (err: any, str: any) => {
+                    const perfEnd: number = performance.now() - perfStart
+                    resolve(str)
+                    this.logger.log(`main[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${perfEnd}ms)`)
+                })
+            })
+        } catch (error) {
+            return new Promise<string>(async (resolve, reject) => {
+
+                reject(error)
+
+            })
+        }
+
+    }
+
+    async load(query: string, path: string) {
+
+        const perfStart = performance.now()
+        const uuid: string = uuidv1()
+
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+
+                let res = query;
+
+                if (query === 'generate') {
+                    try {
+                        this.CreateDbFileIfNotExists(AppConfig.dbPath)
+                        this.CreateTableClient(AppConfig.dbPath)
+                        res = `La génération de la base s'est effectuée avec succcès. La table "Client" a été crée.`
+                    } catch (error) {
+                        res = 'Erreur lors de la génération de la base de donnée : ' + error
+                    }
+                } else if (query === 'import' && path !== undefined) {
+                    try {
+                        if (!fs.existsSync(AppConfig.dbPath)) {
+                            throw new Error('Aucune base de donnée trouvée.')
+                        }
+                        this.InsertSQLRequest(AppConfig.dbPath, await this.GenerateDbInserts(await this.ExtratContentFromFile(path)))
+                        this.CheckClientDataInTableClient(AppConfig.dbPath, '')
+                        res = `Import du fichier "${path} effectué avec succès."`
+                    } catch (error) {
+                        res = 'Erreur lors de l\'insertion des données : ' + error;
+                    }
+                } else {
+                    res = 'Erreur : requête non valide.'
+                }
+
+                // CODE
+
+                const params = {
+                    res,
+                    titre: AppConfig.titre
+                }
+
+                await ejs.renderFile('./src/root/after.html', params, { async: true }, (err: any, str: any) => {
+                    resolve(str)
+                    this.logger.log(`load[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${performance.now() - perfStart}ms)`)
+                })
+
+            } catch (error) {
+                this.logger.error(`load[${uuid.slice(0, 6)}.] - ` + `Error : ${error}.` + ` - (${performance.now() - perfStart}ms)`)
+                reject(error)
+            }
+        })
+    }
+
     public async checkFolders() {
 
         try {
             fs.mkdirSync('./db/')
-        } catch (error) {
-            if (error.code !== 'EEXIST') {
-                throw error
-            }
-        }
-
-        try {
-            fs.mkdirSync('./tmp/')
         } catch (error) {
             if (error.code !== 'EEXIST') {
                 throw error
@@ -185,380 +260,112 @@ export class RootService {
     }
 
     // public async createDBIfNotExist() {
-    //         const db = new Database('./db/SQLite.db'/*, { verbose: this.logger.log }*/)
+    //         const db = new Database('./db/SQLite.db')
 
-            
+
     //         db.close()
     // }
 
-    public async InitDB() {
+    // public async InitDB() {
 
-        const perfStart = performance.now()
-        const uuid: string = uuidv1()
+    //     const perfStart = performance.now()
+    //     const uuid: string = uuidv1()
 
-        try {
-            const db = new Database('./db/SQLite.db'/*, { verbose: this.logger.log }*/)
-            let request: string = ''
-            request = 'CREATE TABLE IF NOT EXISTS client(id INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT, first TEXT, last TEXT, street TEXT, city TEXT, zip NUMERIC);'
-            db.prepare(request).run()
+    //     try {
+    //         const db = new Database('./db/SQLite.db')
+    //         let request: string = ''
+    //         request = 'CREATE TABLE IF NOT EXISTS client(id INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT, first TEXT, last TEXT, street TEXT, city TEXT, zip NUMERIC);'
+    //         db.prepare(request).run()
 
-            request = 'SELECT COUNT(*) as "nbLignes" FROM client'
-            let res = db.prepare(request).all()
-            // console.log(res)
+    //         request = 'SELECT COUNT(*) as "nbLignes" FROM client'
+    //         let res = db.prepare(request).all()
+    //         // console.log(res)
 
 
-            if (res[0].nbLignes === 0) {
+    //         if (res[0].nbLignes === 0) {
 
-                this.logger.log(`InitDB[${uuid.slice(0, 6)}.] - ` + `Starting adding data from "./src/static/clients.csv"` + ` - (${performance.now() - perfStart}ms)`)
+    //             this.logger.log(`InitDB[${uuid.slice(0, 6)}.] - ` + `Starting adding data from "./src/static/clients.csv"` + ` - (${performance.now() - perfStart}ms)`)
 
-                const data: any = (await fsPromise.readFile('./src/static/clients.csv')).toString().replace('guid;first;last;street;city;zip\r\n', '').split('\r\n')
+    //             const data: any = (await fsPromise.readFile('./src/static/clients.csv')).toString().replace('guid;first;last;street;city;zip\r\n', '').split('\r\n')
 
-                // tslint:disable-next-line: prefer-for-of
-                for (let index = 0; index < data.length; index++) {
-                    const line = data[index].split(';')
-                    //  client(id INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT, first TEXT, last TEXT, street TEXT, city TEXT, zip NUMERIC)
-                    if (line.length >= 1) {
-                        request = `INSERT INTO client (guid, first, last, street, city, zip) VALUES ('${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}', '${line[4]}', ${line[5]})`
-                        db.prepare(request).run()
-                    }
-                    // console.log('request', request)
-                }
+    //             // tslint:disable-next-line: prefer-for-of
+    //             for (let index = 0; index < data.length; index++) {
+    //                 const line = data[index].split(';')
+    //                 //  client(id INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT, first TEXT, last TEXT, street TEXT, city TEXT, zip NUMERIC)
+    //                 if (line.length >= 1) {
+    //                     request = `INSERT INTO client (guid, first, last, street, city, zip) VALUES ('${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}', '${line[4]}', ${line[5]})`
+    //                     db.prepare(request).run()
+    //                 }
+    //                 // console.log('request', request)
+    //             }
 
-                this.logger.log(`InitDB[${uuid.slice(0, 6)}.] - ` + `Data insertion : ` + ` - (${performance.now() - perfStart}ms)`)
-            }
+    //             this.logger.log(`InitDB[${uuid.slice(0, 6)}.] - ` + `Data insertion : ` + ` - (${performance.now() - perfStart}ms)`)
+    //         }
 
-            db.close()
+    //         db.close()
 
-        } catch (error) {
-            this.logger.error(`InitDB[${uuid}] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
-            throw error
-        }
+    //     } catch (error) {
+    //         this.logger.error(`InitDB[${uuid}] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
+    //         throw error
+    //     }
+    // }
+
+    public CreateDbFileIfNotExists(dbPath: string) {
+        const db = new Database(dbPath)
     }
 
-    // public async checkLogFiles() {
-    //     console.log('Changing !')
-    //     await fsPromise.copyFile('./log/facial-server.log', './log/old-facial-server.log')
-    //     await fsPromise.unlink('./log/facial-server.log')
-    //     setTimeout(() => { this.checkLogFiles() }, 60000)
-    // }
-
-    // async print(formData: IPrint): Promise<number> {
-
-    //     const perfStart = performance.now()
-    //     const uuid: string = uuidv1()
-
-    //     try {
-
-    //         let avoidPrinting: boolean = false
-
-    //         const db = new Database('./db/facial.db'/*, { verbose: this.logger.log }*/)
-
-    //         let request: string = 'CREATE TABLE IF NOT EXISTS guest(id INTEGER PRIMARY KEY AUTOINCREMENT, first TEXT, last TEXT, corpFrom TEXT, corpTo TEXT, status NUMERIC, enteredMoment DATETIME, exitMoment DATETIME, processUuid TEXT);'
-    //         let info = db.prepare(request).run()
-    //         // TODO: fix this please
-    //         // if (info.changes > 0) {
-    //         //     this.logger.log('#- TABLE CREATION', request, ` - (${performance.now() - perfStart}ms)`)
-    //         // }
-
-    //         request = `INSERT INTO guest (first, last, corpFrom, corpTo, status, processUuid) VALUES ('${formData.first}', '${formData.last}', '${formData.corp}', 'EVERIAL', 0, '${uuid}')`
-    //         info = db.prepare(request).run()
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `SQLITE:"${request}": Ok` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         const guestId = info.lastInsertRowid
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `Guest ID : ${guestId}` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         const pictPath: string = './tmp/' + uuid + '.png'
-
-    //         await fsPromise.writeFile(pictPath, '')
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `File ${pictPath} has been created successfully.` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         let browser: Browser
-
-    //         if (Config.devToolsActivated) {
-    //             if (Config.OnLinux) {
-    //                 browser = await puppeteer.launch({ devtools: true, executablePath: 'chromium-browser' })
-    //             } else {
-    //                 browser = await puppeteer.launch({ devtools: true })
-    //             }
-    //         } else {
-    //             if (Config.OnLinux) {
-    //                 browser = await puppeteer.launch({ executablePath: 'chromium-browser' })
-    //             } else {
-    //                 browser = await puppeteer.launch()
-    //             }
-    //         }
-
-    //         const page: Page = await browser.newPage()
-
-    //         const url: string = `http://${Config.Ip}:${Config.Port}/card`
-
-    //         let pictDataString: string = ''
-
-    //         if (formData.file.buffer.toString().startsWith('data:')) {
-    //             pictDataString = encodeURIComponent(formData.file.buffer.toString())
-    //             this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + 'Info : picture is already formated for webdisplay')
-    //         }
-    //         else {
-    //             pictDataString = encodeURIComponent(`data:${formData.file.mimetype};base64,${formData.file.buffer.toString('base64')}`)
-    //             this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `Picture formating successfull (${decodeURIComponent(pictDataString).slice(0, 64)}...)` + ` - (${performance.now() - perfStart}ms)`)
-    //         }
-
-    //         const subResult = NodeInterceptor.b64UTF8PostTreatmentPicture(formData)
-    //         if (subResult !== '') {
-    //             pictDataString = subResult
-    //         }
-
-    //         let intercept: boolean = true
-    //         await page.setRequestInterception(true)
-
-    //         let postParams: string = ''
-
-    //         page.on('request', interceptedRequest => {
-    //             if (intercept) {
-    //                 interceptedRequest.continue({
-    //                     'method': 'POST',
-    //                     'postData': postParams,
-    //                     'headers': {
-    //                         ...interceptedRequest.headers(),
-    //                         'Content-Type': 'application/x-www-form-urlencoded'
-    //                     }
-    //                 })
-    //                 this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + 'Request alteration success' + ` - (${performance.now() - perfStart}ms)`)
-    //                 intercept = false
-    //             }
-    //             else {
-    //                 interceptedRequest.continue()
-    //             }
-    //         })
-
-
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `Request sent to "${url}"` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         postParams = `first=${formData.first}&last=${formData.last}&corp=${formData.corp}&top=${formData.top}&guestId=${await this.extendNumber(guestId, 8)}&host=${formData.host}&file=${pictDataString}`
-    //         await page.goto(url)
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + 'Request answered' + ` - (${performance.now() - perfStart}ms)`)
-
-
-    //         await page.screenshot({
-    //             path: pictPath,
-    //             clip: {
-    //                 x: 0,
-    //                 y: 0,
-    //                 height: 582.336,
-    //                 width: 367.236
-    //             }
-    //         })
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `File ${pictPath} has been written successfully.` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         if (!Config.devToolsActivated) {
-    //             await browser.close()
-    //         }
-    //         // TODO : in the v2, get a buffer from screenshot and send this buffer to the printer, to avoid filesystem access
-
-    //         if (!avoidPrinting) {
-
-    //             await printer.print(pictPath)
-    //             this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `File ${pictPath} has been sent to printer successfully.` + ` - (${performance.now() - perfStart}ms)`)
-
-    //             request = `UPDATE guest SET status = 1, enteredMoment = CURRENT_TIMESTAMP WHERE id = ${guestId}`
-    //             info = db.prepare(request).run()
-    //             this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `SQLITE:"${request}": Ok` + ` - (${performance.now() - perfStart}ms)`)
-    //         }
-    //         else {
-    //             this.logger.warn(`print[${uuid.slice(0, 6)}.] - ` + 'Printing aborted')
-    //         }
-
-    //         await fsPromise.unlink(pictPath)
-    //         this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `File ${pictPath} has been deleted successfully.` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         db.close()
-
-    //         return await new Promise<number>((resolve, reject) => {
-    //             const perfEnd: number = performance.now() - perfStart
-    //             resolve(perfEnd)
-    //             this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${perfEnd}ms)`)
-    //         })
-
-    //     } catch (error) {
-
-    //         this.logger.error(`print[${uuid.slice(0, 6)}.] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
-    //         throw error
-
-    //     }
-    // }
-
-    // async card(postData: ICard): Promise<string> {
-
-    //     // await this.logger.checkLogFiles()
-    //     const perfStart = performance.now()
-    //     const uuid: string = uuidv1()
-
-    //     try {
-
-    //         // TODO: Make a link the DB to know which logo and css apply to the card
-    //         // const hostLogo: string = '/static/everial.png'
-
-
-    //         // TODO : Makes dates in function of culture
-    //         const today = new Date()
-
-    //         let day: string = today.getDate().toString()
-    //         if (day.length === 1) {
-    //             day = '0' + day
-    //         }
-
-    //         let month: string = (today.getMonth() + 1).toString()
-    //         if (month.length === 1) {
-    //             month = '0' + month
-    //         }
-
-    //         const year: string = today.getFullYear().toString()
-
-    //         const date = `${day}/${month}/${year}`
-
-
-    //         const params = {
-    //             first: postData.first,
-    //             last: postData.last,
-    //             file: postData.file,
-    //             top: postData.top,
-    //             corp: postData.corp,
-    //             date,
-    //             guestId: postData.guestId,
-    //             hostCss: `/static/customDesigns/${postData.host}/style.css`,
-    //             hostLogo: `/static/customDesigns/${postData.host}/logo.png`
-    //         }
-
-    //         return new Promise<string>(async (resolve, reject) => {
-
-    //             await ejs.renderFile('./src/root/card.html', params, { async: true }, (err: any, str: any) => {
-    //                 const perfEnd: number = performance.now() - perfStart
-    //                 resolve(str)
-    //                 this.logger.log(`card[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${perfEnd}ms)`)
-    //             })
-    //         }
-    //         )
-
-    //     } catch (error) {
-
-    //         this.logger.error(`card[${uuid.slice(0, 6)}.] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
-    //         throw error
-
-    //     }
-    // }
-
-    // async exit(guestId: string): Promise<number> {
-
-    //     // await this.logger.checkLogFiles()
-    //     const perfStart = performance.now()
-    //     const uuid: string = uuidv1()
-
-    //     try {
-
-    //         const db = new Database('./db/facial.db'/*, { verbose: this.logger.log }*/)
-    //         // this.logger.log(`print[${uuid.slice(0, 6)}.] - ` + '"./db/facial.db" opened succesfully ' + ` - (${performance.now() - perfStart}ms)`)
-
-    //         let request = `SELECT status FROM guest WHERE id = ${guestId}`
-    //         let guest = db.prepare(request).get()
-    //         if (guest.status !== 1) {
-    //             throw new Error('This guest status isn\'t 1') // Wich mean he isn't inside ...
-    //         }
-
-    //         request = `UPDATE guest SET status = 2, exitMoment = CURRENT_TIMESTAMP WHERE id = ${guestId}`
-    //         let info = db.prepare(request).run()
-    //         this.logger.log(`exit[${uuid.slice(0, 6)}.] - ` + `[${request}]: Ok` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         db.close()
-    //         // this.logger.log('#- "./db/facial.db" closed succesfully ' + ` - (${performance.now() - perfStart}ms)`)
-
-
-    //         return await new Promise<number>((resolve, reject) => {
-    //             const perfEnd: number = performance.now() - perfStart
-    //             resolve(perfEnd)
-    //             this.logger.log(`exit[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${perfEnd}ms)`)
-    //         })
-
-    //     } catch (error) {
-
-    //         this.logger.error(`exit[${uuid.slice(0, 6)}.] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
-    //         throw error
-
-    //     }
-
-    // }
-
-    // async getPeople(onlyPeopleIn: boolean): Promise<any> {
-
-    //     // await this.logger.checkLogFiles()
-    //     const perfStart = performance.now()
-    //     const uuid: string = uuidv1()
-
-    //     try {
-
-    //         let result: any
-
-    //         const db = new Database('./db/facial.db'/*, { verbose: this.logger.log }*/)
-    //         // this.logger.log('#- "./db/facial.db" opened succesfully ' + ` - (${performance.now() - perfStart}ms)`)
-
-    //         if (onlyPeopleIn) {
-
-    //             let request = `SELECT * FROM guest WHERE status = 1`
-    //             result = db.prepare(request).all()
-    //             this.logger.log(`getPeople[${uuid.slice(0, 6)}.] - ` + `SQLITE:"${request}": Ok` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         }
-    //         else {
-
-    //             let request = `SELECT * FROM guest`
-    //             result = db.prepare(request).all()
-    //             this.logger.log(`getPeople[${uuid.slice(0, 6)}.] - ` + `SQLITE:"${request}": Ok` + ` - (${performance.now() - perfStart}ms)`)
-
-    //         }
-
-    //         db.close()
-    //         // this.logger.log('#- "./db/facial.db" closed succesfully ' + ` - (${performance.now() - perfStart}ms)`)
-
-    //         const perfEnd: number = performance.now() - perfStart
-    //         this.logger.log(`getPeople[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${perfEnd}ms)`)
-    //         return result
-
-    //     } catch (error) {
-
-    //         this.logger.error(`getPeople[${uuid.slice(0, 6)}.] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
-    //         throw error
-
-    //     }
-
-    // }
-
-    // async getHosts() {
-
-    //     // await this.logger.checkLogFiles()
-    //     const perfStart = performance.now()
-    //     const uuid: string = uuidv1()
-
-    //     try {
-
-    //         const files = await fsPromise.readdir('./src/static/customDesigns/')
-    //         const ignore = (await fsPromise.readFile('./.hostignore')).toString().replace(/\r/g, '').split('\n')
-    //         const response: string[] = []
-    //         files.forEach((file: any) => {
-    //             if (!ignore.includes(file.toString())) {
-    //                 response.push(file.toString())
-    //             }
-    //         })
-
-    //         const perfEnd: number = performance.now() - perfStart
-    //         this.logger.log(`getHosts[${uuid.slice(0, 6)}.] - ` + `Process completed successfully.` + ` - (${perfEnd}ms)`)
-    //         return response
-
-    //     } catch (error) {
-
-    //         this.logger.error(`getHosts[${uuid.slice(0, 6)}.] - ` + error.toString() + ` - (${performance.now() - perfStart}ms)`)
-    //         throw error
-
-    //     }
-
-    // }
+    public async CreateTableClient(dbPath: string) {
+        const db = new Database(dbPath)
+        let request: string = ''
+        request = 'CREATE TABLE IF NOT EXISTS client(id TEXT PRIMARY KEY, nom TEXT, prenom TEXT, adresse TEXT);'
+        db.prepare(request).run()
+    }
+
+    public async ExtratContentFromFile(filePath: string): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+                resolve((await fsPromise.readFile(filePath)).toString())
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
+    public async GenerateDbInserts(data: string): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+
+
+                let formatedData = data.split('\r\n')
+
+                let res: string = 'INSERT INTO client (id, nom, prenom, adresse) VALUES'
+
+                // tslint:disable-next-line: prefer-for-of
+                for (let index = 0; index < formatedData.length; index++) {
+                    const line = formatedData[index].split(';')
+                    if (line.length >= 1) {
+                        const request = ` ('${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}'),`
+                        res += request
+                    }
+                }
+
+                res = res.replace(/.$/, ';')
+
+                resolve(res)
+
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
+    public async InsertSQLRequest(dbPath: string, request: string) {
+        new Database(dbPath).prepare(request).run()
+    }
+
+    public async CheckClientDataInTableClient(dbPath: string, data: string) {
+        let clients = new Database(dbPath).prepare('SELECT * FROM client;').all()
+        console.log(clients)
+    }
 
 }

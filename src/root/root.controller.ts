@@ -48,7 +48,6 @@ export class RootController {
     ) {
         this.rootService.checkFolders()
         // this.logger.checkLogFiles()
-        this.rootService.InitDB()
     }
 
     @Get('/')
@@ -58,6 +57,38 @@ export class RootController {
             name: appName,
             version
         }
+    }
+
+    @ContentType('text/plain')
+    @Get('/getLogs')
+    async seeLogs(
+        @QueryParam('guestId') guestId: number,
+        @QueryParam('uuid') uuid: string,
+        @QueryParam('dateStart') dateStart: string,
+        @QueryParam('dateEnd') dateEnd: string,
+        @QueryParam('all') all: boolean
+    ) {
+        this.logger.reqLog('Request at "/getLogs"')
+        return await this.rootService.getLogs(guestId, uuid, all, dateStart, dateEnd)
+    }
+
+    @Get('/main')
+    @UseBefore(bodyParser.urlencoded())
+    @ContentType('text/html')
+    main(): Promise<string> {
+        this.logger.reqLog('Request at "/main"')
+        return this.rootService.main()
+    }
+
+    @Get('/load')
+    @UseBefore(bodyParser.urlencoded())
+    @ContentType('text/html')
+    async load(
+        @QueryParam('query') query: string,
+        @QueryParam('path') path: string
+    ): Promise<string> {
+        this.logger.reqLog(`Request at "/load?query=${query}&path=${path}"`)
+        return this.rootService.load(query, path)
     }
 
     // @Post('/print')
@@ -119,19 +150,6 @@ export class RootController {
     //     this.logger.reqLog('Request at "/getPeople"')
     //     return await this.rootService.getPeople(onlyPeopleIn)
     // }
-
-    @ContentType('text/plain')
-    @Get('/getLogs')
-    async seeLogs(
-        @QueryParam('guestId') guestId: number,
-        @QueryParam('uuid') uuid: string,
-        @QueryParam('dateStart') dateStart: string,
-        @QueryParam('dateEnd') dateEnd: string,
-        @QueryParam('all') all: boolean
-    ) {
-        this.logger.reqLog('Request at "/getLogs"')
-        return await this.rootService.getLogs(guestId, uuid, all, dateStart, dateEnd)
-    }
 
     // @Get('/getHosts')
     // async getHosts() {

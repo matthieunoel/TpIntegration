@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>index</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet" />
+    <link rel="stylesheet" href="./static/style/main.css" />
+    <!-- <script src="./scripts/main.js"></script> -->
+    <!-- <script src="./node_modules/sql.js/dist/"></script> -->
+</head>
+
+<body>
+    <header>
+        <h1>
+            <%= titre %>
+        </h1>
+    </header>
+
+    <section>
+        <h2>Génération de la base de données SQLite et de sa table client</h2>
+        <form id="form1">
+            <input type="button" id="form1button1" value="Générer" onclick="window.location.href = './load?query=generate'" />
+        </form>
+    </section>
+    <section>
+        <h2>Importer un fichier client dans la base de données SQLite</h2>
+        <form id="form2">
+            <label for="Path">Fichier chargé : "<a href="./static/client.txt"
+            >./static/client.txt</a
+          >"
+        </label>
+            <input type="hidden" name="Path" id="form2Path" value="./src/static/client.txt" readonly />
+            <!-- <input type="file" id="form2File" name="File"> -->
+            <input type="button" id="form2button1" value="Importer le fichier" onclick="window.location.href = ('./load?query=import&path=' + encodeURIComponent(document.getElementById('form2Path').value))" />
+            <!-- <input type="button" id="form2button1" value="Importer le fichier" onclick="alert('Hey')"> -->
+        </form>
+    </section>
+</body>
+
+</html>

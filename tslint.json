@@ -10,7 +10,7 @@
             "single"
         ],
         "semicolon": [
-            true,
+            false,
             "never"
         ],
         "no-console": false,
