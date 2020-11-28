@@ -13,7 +13,7 @@ export class AppConfig {
   public static Ip: string = '127.0.0.1'
   public static OnLinux: boolean = false
   public static devToolsActivated: boolean = false
-  public static dbPath: string = './db/SQLite.db'
+  public static dbPath: string = '<rootDir>/db/SQLite.db'
   public static titre: string = 'Atelier Tests (KENORE Ahmed) : Matthieu NOEL, Cyril FURNON, Thomas Christophe.'
 
 }

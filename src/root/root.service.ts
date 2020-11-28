@@ -17,6 +17,8 @@ import { config } from 'process'
 
 export class RootService {
 
+    constructor () {};
+
     private logger: Logger = new Logger()
     // private titre: string = 'Atelier Tests (KENORE Ahmed) : Matthieu NOEL, Cyril FURNON, Thomas Christophe.'
 
@@ -383,4 +385,5 @@ export class RootService {
         }
         return clientsData === clientsDb
     }
+
 }
