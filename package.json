@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "description": "",
     "main": "src/app.js",
-    "type": "module",
     "scripts": {
         "test": "jest --watchAll",
         "coverage": "jest --coverage",
