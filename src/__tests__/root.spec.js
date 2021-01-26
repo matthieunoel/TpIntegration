@@ -13,6 +13,8 @@ function DeleteFileIfExists(filePath) {
 
 describe('AppComponent', () => {
 
+    // Unit tests
+
     it('CreateDbFileIfNotExists() crée bien la base de donnée.', () => {
         const testDbPath = './db/test01.db'
         DeleteFileIfExists(testDbPath);
@@ -78,6 +80,8 @@ describe('AppComponent', () => {
 
         expect(res).toEqual(ExpetedResult);
     });
+
+    // Not Unit tests lol
 
     it('La base de donnée peut se générer avec ses tables.', async() => {
         const testDbPath = './db/test04.db'
