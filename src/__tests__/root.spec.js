@@ -13,6 +13,8 @@ function DeleteFileIfExists(filePath) {
 
 describe('AppComponent', () => {
 
+    RootService.checkFolders()
+
     // Unit tests
 
     it('CreateDbFileIfNotExists() crée bien la base de donnée.', () => {

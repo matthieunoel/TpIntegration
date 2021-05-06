@@ -46,7 +46,7 @@ export class RootController {
     constructor(
         private rootService: RootService
     ) {
-        this.rootService.checkFolders()
+        RootService.checkFolders()
         // this.logger.checkLogFiles()
     }
 

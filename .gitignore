@@ -2,6 +2,8 @@ node_modules
 src/**/*.js
 src/**/*.map
 *.log
+tmp
 tmp/**
+db
 db/**/**.*
 .vs
