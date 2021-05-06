@@ -9,22 +9,25 @@
         "release": "standard-version -a && git push --follow-tags origin master",
         "build": "tsc -p ./",
         "start-linux": "sudo npm run build ; nodemon",
-        "start-wnd": "npm run build && nodemon"
+        "start-wnd": "npm run build && nodemon",
+        "start": "node ./src/app.js"
     },
     "jest": {
         "testEnvironment": "node",
         "coveragePathIgnorePatterns": [
             "/node_modules/"
         ],
-        "setupFiles": ["<rootDir>/setupJest.js"]
+        "setupFiles": [
+            "<rootDir>/setupJest.js"
+        ]
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Spiroti/AtelierTest.git"
+        "url": "git+https://github.com/matthieunoel/TpIntegration.git"
     },
     "author": "Matthieu NOEL",
     "license": "ISC",
-    "homepage": "https://github.com/Spiroti/AtelierTest#readme",
+    "homepage": "https://github.com/matthieunoel/TpIntegration",
     "dependencies": {
         "@types/body-parser": "^1.19.0",
         "@types/multer": "^1.4.2",
