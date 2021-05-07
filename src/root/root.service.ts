@@ -1,5 +1,3 @@
-import { Browser, Page } from 'puppeteer'
-
 const ejs = require('ejs')
 // const puppeteer = require('puppeteer')
 // const printer = require('pdf-to-printer')
