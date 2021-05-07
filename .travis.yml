@@ -3,6 +3,9 @@ before_install:
 language: node_js
 node_js:
   - "14.15.4"
+cache:
+  directories:
+  - node_modules
 script:
   - npm run build
 #  - npm run test
@@ -15,4 +18,5 @@ deploy:
     branch: sensei
 branches:
   only:
+    - sensei
     - pre-prod
