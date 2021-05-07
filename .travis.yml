@@ -3,9 +3,6 @@ before_install:
 language: node_js
 node_js:
   - "stable"
-cache:
-  directories:
-  - node_modules
 script:
   - npm run build
   - npm run test
@@ -16,3 +13,6 @@ deploy:
   local_dir: build
   on:
     branch: sensei
+branches:
+  only:
+    - pre-prod
