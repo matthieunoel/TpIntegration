@@ -2,7 +2,7 @@ before_install:
    - nvm install 7 # pour PythonV3.6
 language: node_js
 node_js:
-  - "stable"
+  - "14.15.4"
 script:
   - npm run build
   - npm run test
