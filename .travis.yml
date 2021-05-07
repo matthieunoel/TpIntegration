@@ -1,5 +1,6 @@
 before_install:
    - nvm install 7 # pour PythonV3.6
+   - npm i -g npm@7.11.2
 language: node_js
 node_js:
   - "14.15.4"
