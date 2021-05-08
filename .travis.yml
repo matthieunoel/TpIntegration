@@ -1,19 +1,21 @@
+before_install:
+   - nvm install 7 # pour PythonV3.6
 language: node_js
 node_js:
-  - "stable"
+  - "14.15.4"
 cache:
   directories:
   - node_modules
 script:
   - npm run build
-  - npm run test
+#  - npm run test
 deploy:
   provider: pages
   skip_cleanup: true
   github_token: $github_token
   local_dir: build
   on:
-    branch: master
+    branch: senpai
 branches:
   only:
     - pre-prod
