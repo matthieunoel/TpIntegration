@@ -4,7 +4,7 @@
     "description": "",
     "main": "src/app.js",
     "scripts": {
-        "test": "jest --watchAll",
+        "test": "jest --all",
         "coverage": "jest --coverage",
         "release": "standard-version -a && git push --follow-tags origin master",
         "build": "tsc -p ./",

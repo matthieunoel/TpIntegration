@@ -18,5 +18,4 @@ deploy:
     branch: senpai
 branches:
   only:
-    - senpai
     - pre-prod
