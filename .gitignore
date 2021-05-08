@@ -1,7 +1,8 @@
 node_modules
 src/**/*.js
 src/**/*.map
-*.log
+log
+log/**
 tmp
 tmp/**
 db

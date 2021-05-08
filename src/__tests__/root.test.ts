@@ -5,6 +5,7 @@ const fsPromise = require('fs').promises
 const Database = require('better-sqlite3');
 const dbPath = '<rootDir>/db/SQLiteTest.db';
 
+// @ts-ignore
 function DeleteFileIfExists(filePath) {
     if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -40,7 +41,7 @@ describe('AppComponent', () => {
         expect(res).toBe(undefined);
     });
 
-    it('ExtratContentFromFile() extrait bien les données.', async() => {
+    it('ExtratContentFromFile() extrait bien les données.', async () => {
         const testFilePath = './src/__tests__/testFile.txt'
         const ExpetedResult = 'This is the content of the test File. &é"\'(-è_çà)1234567890~#{[|`\\^@]}'
         const rootService = new RootService();
@@ -48,7 +49,7 @@ describe('AppComponent', () => {
         expect(res).toBe(ExpetedResult);
     });
 
-    it('GenerateDbInserts() genère bien des inserts à partir de données.', async() => {
+    it('GenerateDbInserts() genère bien des inserts à partir de données.', async () => {
         const testDataString = 'IDRDN;NOMTEST;PRENOMTEST;EM@ILTEST'
         const ExpetedResult = "INSERT INTO client (id, nom, prenom, adresse) VALUES ('IDRDN', 'NOMTEST', 'PRENOMTEST', 'EM@ILTEST');"
 
@@ -57,7 +58,7 @@ describe('AppComponent', () => {
         expect(res).toBe(ExpetedResult);
     });
 
-    it('InsertSQLRequest() effectue bien les inserts.', async() => {
+    it('InsertSQLRequest() effectue bien les inserts.', async () => {
         const testDbPath = './db/test03.db'
 
         const testDataString = "INSERT INTO client (id, nom, prenom, adresse) VALUES ('IDRDN', 'NOMTEST', 'PRENOMTEST', 'EM@ILTEST');"
@@ -85,7 +86,7 @@ describe('AppComponent', () => {
 
     // Not Unit tests lol
 
-    it('La base de donnée peut se générer avec ses tables.', async() => {
+    it('La base de donnée peut se générer avec ses tables.', async () => {
         const testDbPath = './db/test04.db'
         DeleteFileIfExists(testDbPath)
         const rootService = new RootService();
@@ -93,7 +94,7 @@ describe('AppComponent', () => {
         rootService.CreateTableClient(testDbPath);
     });
 
-    it('L\'import des données s\'effectue correctement.', async() => {
+    it('L\'import des données s\'effectue correctement.', async () => {
         const testDbPath = './db/test05.db'
 
         const testFilePath = './src/__tests__/client.test.txt'
